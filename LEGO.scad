@@ -10,10 +10,10 @@
 block_width = 2;
 
 // Length of the block, in studs
-block_length = 6;
+block_length = 2;
 
 // Height of the block. A ratio of "1" is a standard LEGO brick height; a ratio of "1/3" is a standard LEGO plate height; "1/2" is a standard DUPLO plate.
-block_height_ratio = 1; // [.33333333333:1/3, .5:1/2, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10]
+block_height_ratio = 1/3; // [.33333333333:1/3, .5:1/2, 1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7, 8:8, 9:9, 10:10]
 
 // What type of block should this be? For type-specific options, see the "Wings," "Slopes," "Curves", and "Baseplates" tabs.
 block_type = "brick"; // [brick:Brick, tile:Tile, wing:Wing, slope:Slope, curve:Curve, baseplate:Baseplate]
@@ -28,7 +28,7 @@ stud_type = "solid"; // [solid:Solid, hollow:Hollow]
 block_bottom_type = "open"; // [closed:Closed, open:Open]
 
 // Should the block wall include splines? Valid only for a open block bottom type.
-include_wall_splines = "yes"; // [no:No, yes:Yes]
+include_wall_splines = "no  `"; // [no:No, yes:Yes]
 
 // Should the block include round horizontal holes like the Technics LEGO bricks have?
 technic_holes = "no"; // [no:No, yes:Yes]
@@ -61,7 +61,7 @@ slope_end_height = 0;
 /* [Curves] */
 
 // How many rows of studs should be left before the curve?
-curve_stud_rows = 5;
+curve_stud_rows = 0;
 
 // Should the curve be convex or concave?
 curve_type = "concave"; // [concave:Concave, convex:Convex]
@@ -106,7 +106,7 @@ stud_rescale = 1.00;
 //stud_rescale = 1.022 * 1; // Orion Delta, ABS
 
 // If you want stud tops to be curved, specify a value between 0 and 1, where 0 is no roundness and 1 is very round
-stud_top_roundness = 0; // [0:0.01:1]
+stud_top_roundness = 0.4; // [0:0.01:1]
 
 // Print tiles upside down.
 translate([0, 0, (block_type == "tile" ? block_height_ratio * block_height : 0)]) rotate([0, (block_type == "tile" ? 180 : 0), 0]) {
@@ -174,7 +174,7 @@ module block(
     dual_sided=false,
     dual_bottom=false
     ) {
-    post_wall_thickness = (brand == "lego" ? 0.85 : 1);
+    post_wall_thickness = (brand == "lego" ? 0.45 : 1);
     wall_thickness=(brand == "lego" ? 1.45 : 1.5);
     stud_diameter=(brand == "lego" ? 4.85 : 9.35);
     hollow_stud_inner_diameter = (brand == "lego" ? 3.1 : 6.7);
@@ -182,7 +182,7 @@ module block(
     stud_spacing=(brand == "lego" ? 8 : 8 * 2);
     block_height=compute_block_height(type, brand);
     pin_diameter=(brand == "lego" ? 3 : 3 * 2);
-    post_diameter=(brand == "lego" ? 6.5 : 13.2);
+    post_diameter=(brand == "lego" ? 6.3 : 13.2);
     cylinder_precision=(brand == "lego" ? 0.1 : 0.05);
     reinforcing_width = (brand == "lego" ? 0.7 : 1);
 
@@ -306,8 +306,11 @@ module block(
                     // Interior splines to catch the studs.
                     if (real_include_wall_splines) {
                       translate([stud_spacing / 2 - wall_play - (spline_thickness/2), 0, 0]) for (xcount = [0:real_length-1]) {
-                          translate([0,wall_thickness,0]) translate([xcount * stud_spacing, 0, 0]) cube([spline_thickness, spline_length, real_height * block_height]);
-                          translate([xcount * stud_spacing, overall_width - wall_thickness -  spline_length, 0]) cube([spline_thickness, spline_length, real_height * block_height]);
+                          translate([0,wall_thickness,0]) 
+                            translate([xcount * stud_spacing, 0, 0]) 
+                              cube([spline_thickness, spline_length, real_height * block_height]);
+                          translate([xcount * stud_spacing, overall_width - wall_thickness -  spline_length, 0]) 
+                            cube([spline_thickness, spline_length, real_height * block_height]);
                       }
 
                       translate([0, stud_spacing / 2 - wall_play - (spline_thickness/2), 0]) for (ycount = [0:real_width-1]) {
@@ -324,7 +327,8 @@ module block(
                                     // Posts
                                     for (ycount=[1:real_width-1]) {
                                         for (xcount=[1:real_length-1]) {
-                                            translate([(xcount-1)*stud_spacing,(ycount-1)*stud_spacing,0]) post(real_vertical_axle_holes && !skip_this_vertical_axle_hole(xcount, ycount));
+                                            translate([(xcount-1)*stud_spacing,(ycount-1)*stud_spacing,0]) 
+                                              post(real_vertical_axle_holes && !skip_this_vertical_axle_hole(xcount, ycount));
                                         }
                                     }
 
